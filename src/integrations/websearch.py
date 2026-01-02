@@ -52,6 +52,8 @@ class WebsearchIntegration(NewelleExtension):
             widget.add_website(title, link, favicon)
         widget.finish(result)
         widget.connect("website-clicked", lambda widget,link : self.ui_controller.open_link(link, False, not self.settings.get_boolean("external-browser")))
+        widget.connect("scrape-link-clicked", self.on_scrape_link_clicked)
+        widget.connect("summarize-youtube-clicked", self.on_summarize_youtube_clicked)
         return widget 
 
     def restore_gtk_widget(self, codeblock: str, lang: str, msgid) -> Gtk.Widget | None:
@@ -67,6 +69,8 @@ class WebsearchIntegration(NewelleExtension):
         self.msgid = msgid
         search_widget = WebSearchWidget(search_term=codeblock)
         search_widget.connect("website-clicked", lambda widget,link : self.ui_controller.open_link(link, False, not self.settings.get_boolean("external-browser")))
+        search_widget.connect("scrape-link-clicked", self.on_scrape_link_clicked)
+        search_widget.connect("summarize-youtube-clicked", self.on_summarize_youtube_clicked)
         self.widgets[codeblock] = search_widget 
         self.widget_cache[msgid] = {}
         self.widget_cache[msgid]["websites"] = []
@@ -94,4 +98,23 @@ class WebsearchIntegration(NewelleExtension):
                 del self.widget_cache[key]
         else:
             self.widget_cache = {}
+
+    def on_scrape_link_clicked(self, widget, url):
+        def scrape_and_update():
+            content = self.websearch.scrape_link(url)
+            if content:
+                GLib.idle_add(self.ui_controller.add_text_to_input, f"Content of {url}:\n{content}", True)
+        
+        import threading
+        threading.Thread(target=scrape_and_update).start()
+
+    def on_summarize_youtube_clicked(self, widget, url):
+        def summarize_and_update():
+            summary = self.websearch.summarize_youtube(url)
+            if summary:
+                GLib.idle_add(self.ui_controller.add_text_to_input, f"Summary of {url}:\n{summary}", True)
+
+        import threading
+        threading.Thread(target=summarize_and_update).start()
+
 

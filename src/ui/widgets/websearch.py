@@ -4,7 +4,9 @@ from gi.repository import Gtk, Pango, GObject
 
 class WebSearchWidget(Gtk.Box):
     __gsignals__ = {
-        'website-clicked': (GObject.SignalFlags.RUN_LAST, None, (str,))
+        'website-clicked': (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        'scrape-link-clicked': (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        'summarize-youtube-clicked': (GObject.SignalFlags.RUN_LAST, None, (str,))
     }
 
     def __init__(self, search_term, **kwargs):
@@ -66,6 +68,25 @@ class WebSearchWidget(Gtk.Box):
             print(favicon)
         button = Gtk.Button()
         button.connect("clicked", lambda x, link=link: self.emit('website-clicked', link))
+        
+        popover = Gtk.PopoverMenu()
+        button.popover = popover 
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        popover.set_child(vbox)
+
+        scrape_button = Gtk.Button(label="Scrape Link")
+        scrape_button.connect("clicked", lambda x, link=link: self.emit('scrape-link-clicked', link))
+        vbox.append(scrape_button)
+
+        summarize_button = Gtk.Button(label="Summarize YouTube")
+        summarize_button.connect("clicked", lambda x, link=link: self.emit('summarize-youtube-clicked', link))
+        vbox.append(summarize_button)
+
+        gesture = Gtk.GestureClick.new()
+        gesture.set_button(3)  # Right-click
+        gesture.connect("pressed", self.on_button_pressed)
+        button.add_controller(gesture)
+        
         row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         icon = Gtk.Image(icon_name="internet-symbolic")
         load_image_with_callback(favicon, lambda pixbuf_loader: icon.set_from_pixbuf(pixbuf_loader.get_pixbuf()))
@@ -78,6 +99,11 @@ class WebSearchWidget(Gtk.Box):
         row_box.append(spinner_revealer)
         button.set_child(row_box)
         return button, spinner, spinner_revealer
+
+    def on_button_pressed(self, gesture, n_press, x, y):
+        button = gesture.get_widget()
+        button.popover.set_parent(button)
+        button.popover.popup()
  
     # add_website remains the same
     def add_website(self, title, link, favicon_path=None):
