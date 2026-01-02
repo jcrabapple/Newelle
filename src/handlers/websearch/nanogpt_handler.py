@@ -251,15 +251,8 @@ class NanoGPTWebSearchHandler(WebSearchHandler):
         try:
             # Get API settings
             api_key = self.get_setting("api", False)
-            endpoint = self.get_setting("scraping_endpoint", "https://nano-gpt.com/api/v1/scrape")
-            
-            if not api_key:
-                self.throw("NanoGPT API key is not configured", ErrorSeverity.WARNING)
-                return ""
-            
-            # Make the API request
             headers = {
-                "Authorization": f"Bearer {api_key}",
+                "x-api-key": api_key,
                 "Content-Type": "application/json"
             }
             
@@ -305,7 +298,7 @@ class NanoGPTWebSearchHandler(WebSearchHandler):
             
             # Make the API request
             headers = {
-                "Authorization": f"Bearer {api_key}",
+                "x-api_key": api_key,
                 "Content-Type": "application/json"
             }
             
