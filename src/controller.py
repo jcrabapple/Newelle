@@ -421,9 +421,11 @@ class NewelleSettings:
             list[ReloadType]: list of ReloadType to reload
         """
         reloads = []
-        if self.language_model != new_settings.language_model or self.llm_settings != new_settings.llm_settings:
+        # NanoGPT is now the only LLM - simplified logic
+        if self.llm_settings != new_settings.llm_settings:
             reloads.append(ReloadType.LLM)
-        if self.secondary_language_model != new_settings.secondary_language_model or self.use_secondary_language_model != new_settings.use_secondary_language_model or self.secondary_language_model_settings != new_settings.secondary_language_model_settings:
+        # Secondary LLM is always the same as primary now
+        if self.use_secondary_language_model != new_settings.use_secondary_language_model:
             reloads.append(ReloadType.SECONDARY_LLM)
         
         if self.tts_program != new_settings.tts_program:
@@ -492,10 +494,12 @@ class HandlersManager:
         Args:
             newelle_settings: Newelle settings
         """
-        if newelle_settings.language_model not in AVAILABLE_LLMS:
-            newelle_settings.language_model = list(AVAILABLE_LLMS.keys())[0]
-        if newelle_settings.secondary_language_model not in AVAILABLE_LLMS:
-            newelle_settings.secondary_language_model = list(AVAILABLE_LLMS.keys())[0]
+        # NanoGPT is now the only LLM - force it if not set
+        if newelle_settings.language_model != "nanogpt":
+            newelle_settings.language_model = "nanogpt"
+        if newelle_settings.secondary_language_model != "nanogpt":
+            newelle_settings.secondary_language_model = "nanogpt"
+        
         if newelle_settings.embedding_model not in AVAILABLE_EMBEDDINGS:
             newelle_settings.embedding_model = list(AVAILABLE_EMBEDDINGS.keys())[0]
         if newelle_settings.memory_model not in AVAILABLE_MEMORIES:

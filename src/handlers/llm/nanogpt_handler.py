@@ -1,20 +1,20 @@
-import threading 
+import threading
 import json
-from typing import Any, Callable 
-
+from typing import Any, Callable
 
 from .llm import LLMHandler
 from ...utility.system import open_website
 from ...utility import convert_history_openai, get_streaming_extra_setting
 from ...handlers import ExtraSettings, ErrorSeverity
 
-class OpenAIHandler(LLMHandler):
-    key = "openai"
-    default_models = (("gpt-3.5-turbo", "gpt-3.5-turbo"), )
+class NanoGPTHandler(LLMHandler):
+    key = "nanogpt"
+    default_models = (("nano-gpt", "nano-gpt"), )
+    
     def __init__(self, settings, path):
         super().__init__(settings, path)
         if self.get_setting("models", False) is None:
-            self.models = self.default_models 
+            self.models = self.default_models
             threading.Thread(target=self.get_models).start()
         else:
             self.models = json.loads(self.get_setting("models", False))
@@ -50,10 +50,10 @@ class OpenAIHandler(LLMHandler):
         return True
 
     def get_extra_settings(self) -> list:
-        return self.build_extra_settings("OpenAI", True, True, True, True, True, "https://openai.com/policies/row-privacy-policy/", None, False,False,True)
+        return self.build_extra_settings("NanoGPT", True, True, True, True, True, "https://docs.nano-gpt.com/", "https://docs.nano-gpt.com/models", False, False, True)
 
-    def build_extra_settings(self, provider_name: str, has_api_key: bool, has_stream_settings: bool, endpoint_change: bool, allow_advanced_params: bool, supports_automatic_models: bool, privacy_notice_url : str | None, model_list_url: str | None, default_advanced_params: bool = False, default_automatic_models: bool = False, supports_custom_body : bool = False) -> list:
-        """Helper to build the list of extra settings for OpenAI Handlers
+    def build_extra_settings(self, provider_name: str, has_api_key: bool, has_stream_settings: bool, endpoint_change: bool, allow_advanced_params: bool, supports_automatic_models: bool, privacy_notice_url: str | None, model_list_url: str | None, default_advanced_params: bool = False, default_automatic_models: bool = False, supports_custom_body: bool = False) -> list:
+        """Helper to build the list of extra settings for NanoGPT Handler
 
         Args:
             provider_name: name of the provider, it is stated in model settings 
@@ -68,11 +68,11 @@ class OpenAIHandler(LLMHandler):
         Returns:
             list containing the extra settings
         """
-        api_settings = [ 
+        api_settings = [
             ExtraSettings.EntrySetting("api", _("API Key"), _("API Key for " + provider_name), "", password=True),
         ]
         endpoint_settings = [
-            ExtraSettings.EntrySetting("endpoint", _("API Endpoint"), _("API base url, change this to use interference APIs"), "https://api.openai.com/v1/"),
+            ExtraSettings.EntrySetting("endpoint", _("API Endpoint"), _("API base url, change this to use NanoGPT API"), "https://api.nano-gpt.com/v1/"),
         ]
         custom_model = [
             ExtraSettings.ToggleSetting("custom_model", _("Use Custom Model"), _("Use a custom model"), False, update_settings=True)
@@ -80,7 +80,7 @@ class OpenAIHandler(LLMHandler):
         advanced_param_toggle = [
             ExtraSettings.ToggleSetting("advanced_params", _("Advanced Parameters"), _("Include parameters like Top-P, Temperature, etc."), default_advanced_params, update_settings=True)
         ]
-        models_settings = [ 
+        models_settings = [
             ExtraSettings.EntrySetting("model", _("Model"), _("Name of the LLM Model to use"), self.models[0][0]),
         ]
         if model_list_url is not None:
@@ -105,11 +105,11 @@ class OpenAIHandler(LLMHandler):
             ExtraSettings.ScaleSetting("frequency-penalty", _("Frequency Penalty"), _("Number between -2.0 and 2.0. Positive values decrease the model's likelihood to repeat the same line verbatim"), 0, -2, 2, 0),
             ExtraSettings.ScaleSetting("presence-penalty", _("Presence Penalty"), _("Number between -2.0 and 2.0. Positive values decrease the model's likelihood to talk about new topics"), 0, -2, 2, 0),
         ]
-        custom_body = ExtraSettings.MultilineEntrySetting("custom_body", _("Custom Options"), _("Provide a JSON containing the custom options"), "{}") 
+        custom_body = ExtraSettings.MultilineEntrySetting("custom_body", _("Custom Options"), _("Provide a JSON containing the custom options"), "{}")
         
         privacy_notice = [
             ExtraSettings.ButtonSetting(
-                    "privacy", _("Privacy Policy"), _("Open privacy policy website"),
+                    "privacy", _("Documentation"), _("Open NanoGPT documentation"),
                     lambda button: open_website(privacy_notice_url), None, "internet-symbolic"
                 )
         ]
@@ -152,7 +152,7 @@ class OpenAIHandler(LLMHandler):
         temperature = self.get_setting("temperature")
         presence_penalty = self.get_setting("presence-penalty")
         frequency_penalty = self.get_setting("frequency-penalty")
-        return top_p, temperature, presence_penalty, frequency_penalty 
+        return top_p, temperature, presence_penalty, frequency_penalty
 
     def generate_text(self, prompt: str, history: list[dict[str, str]] = [], system_prompt: list[str] = []) -> str:
         from openai import OpenAI
@@ -202,7 +202,7 @@ class OpenAIHandler(LLMHandler):
                 top_p=top_p,
                 temperature=temperature,
                 presence_penalty=presence_penalty,
-                frequency_penalty=frequency_penalty, 
+                frequency_penalty=frequency_penalty,
                 stream=True,
                 extra_headers=self.get_extra_headers(),
                 extra_body=self.get_extra_body(),
@@ -243,7 +243,7 @@ class OpenAIHandler(LLMHandler):
                 return j
             except Exception as e:
                 print("Wrong custom body")
-                self.throw("Wrong custom body given to OpenAI LLM Handler, ignoring")
+                self.throw("Wrong custom body given to NanoGPT LLM Handler, ignoring")
                 return {}
         return {}
 

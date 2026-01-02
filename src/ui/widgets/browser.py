@@ -3,8 +3,13 @@ import urllib.parse
 import threading
 import json
 import os
-gi.require_version('WebKit', '6.0')
-from gi.repository import Gtk, WebKit, GLib, GObject, Gio, Adw, GdkPixbuf
+try:
+    gi.require_version('WebKit', '6.0')
+    from gi.repository import Gtk, WebKit, GLib, GObject, Gio, Adw, GdkPixbuf
+except (ValueError, ImportError):
+    # Fallback to WebKit2 4.1 if WebKit 6.0 is not available
+    gi.require_version('WebKit2', '4.1')
+    from gi.repository import Gtk, WebKit2 as WebKit, GLib, GObject, Gio, Adw, GdkPixbuf
 from ...ui import load_image_with_callback
 from ...utility.website_scraper import WebsiteScraper
 

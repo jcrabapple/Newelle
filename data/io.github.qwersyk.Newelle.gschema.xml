@@ -45,10 +45,10 @@
             <default>false</default>
         </key>
 	      <key name="secondary-language-model" type="s">
-            <default>"newelle"</default>
+            <default>"nanogpt"</default>
         </key>
 	      <key name="language-model" type="s">
-            <default>"newelle"</default>
+            <default>"nanogpt"</default>
         </key>
 	      <key name="llm-settings" type="s">
             <default>"{}"</default>

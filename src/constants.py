@@ -1,5 +1,5 @@
 from copy import deepcopy
-from .handlers.llm import ClaudeHandler, DeepseekHandler, GPT4AllHandler, GroqHandler, OllamaHandler, OpenAIHandler, CustomLLMHandler, GPT3AnyHandler, GeminiHandler, MistralHandler, OpenRouterHandler, NewelleAPIHandler, G4FHandler
+from .handlers.llm import NanoGPTHandler
 from .handlers.tts import ElevenLabs, gTTSHandler, EspeakHandler, CustomTTSHandler, KokoroTTSHandler, CustomOpenAITTSHandler, OpenAITTSHandler, GroqTTSHandler
 from .handlers.stt import GroqSRHandler, OpenAISRHandler, SphinxHandler, GoogleSRHandler, WhisperCPPHandler, WitAIHandler, VoskHandler, CustomSRHandler
 from .handlers.embeddings import WordLlamaHandler, OpenAIEmbeddingHandler, GeminiEmbeddingHanlder, OllamaEmbeddingHandler
@@ -15,86 +15,12 @@ SCHEMA_ID = 'io.github.qwersyk.Newelle'
 AVAILABLE_INTEGRATIONS = [WebsiteReader, WebsearchIntegration]
 
 AVAILABLE_LLMS = {
-    "newelle": {
-        "key": "newelle",
-        "title": _("Newelle Demo API"),
-        "description": "Newelle Demo API, limited to 10 requests per day, demo purposes only",
-        "class": NewelleAPIHandler,
-    },
-    "g4f": {
-        "key": "g4f",
-        "title": _("GPT4Free"),
-        "description": "Python library that automatically searches for available free endpoints to use",
-        "website": "https://github.com/gpt4free/g4f.dev/blob/main/docs%2Fproviders-and-models.md",
-        "class": G4FHandler,
-        "secondary": True,
-    },
-   "local": {
-        "key": "local",
-        "title": _("Local Model"),
-        "description": _("NO GPU SUPPORT, USE OLLAMA INSTEAD. Run a LLM model locally, more privacy but slower"),
-        "class": GPT4AllHandler,
-    },
-    "ollama": {
-        "key": "ollama",
-        "title": _("Ollama Instance"),
-        "description": _("Easily run multiple LLM models on your own hardware"),
-        "class": OllamaHandler,
-        "website": "https://ollama.com/",
-    },
-    "groq": {
-        "key": "groq",
-        "title": _("Groq"),
-        "description": "Groq.com Free and fast API using open source models. Suggested for free use.",
-        "class": GroqHandler,
-        "website": "https://console.groq.com/",
-    },
-    "gemini": {
-        "key": "gemini",
-        "title": _("Google Gemini API"),
-        "description": "Official APIs for Google Gemini, requires an API Key",
-        "class": GeminiHandler,
-    },
-    "openai": {
-        "key": "openai",
-        "title": _("OpenAI API"),
-        "description": _("OpenAI API. Custom endpoints supported. Use this for custom providers"),
-        "class": OpenAIHandler,
-    },
-    "claude": {
-        "key": "claude",
-        "title": _("Anthropic Claude"),
-        "description": _("Official APIs for Anthropic Claude's models, with image and file support, requires an API key"),
-        "class": ClaudeHandler,
-        "secondary": True
-    },
-    "mistral": {
-        "key": "mistral",
-        "title": _("Mistral"),
-        "description": _("Mistral API"),
-        "class": MistralHandler,
-        "secondary": True
-    },
-    "openrouter": {
-        "key": "openrouter",
-        "title": _("OpenRouter"),
-        "description": _("Openrouter.ai API, supports lots of models"),
-        "class": OpenRouterHandler,
-        "secondary": True
-    },
-    "deepseek": {
-        "key": "deepseek",
-        "title": _("Deepseek"),
-        "description": _("Deepseek API, strongest open source models"),
-        "class": DeepseekHandler, 
-        "secondary": True,
-    },
-    "custom_command": {
-        "key": "custom_command",
-        "title": _("Custom Command"),
-        "description": _("Use the output of a custom command"),
-        "class": CustomLLMHandler,
-        "secondary": True
+    "nanogpt": {
+        "key": "nanogpt",
+        "title": _("NanoGPT API"),
+        "description": "NanoGPT API - Fast, efficient, and cost-effective AI API with web search and link scraping capabilities",
+        "class": NanoGPTHandler,
+        "website": "https://docs.nano-gpt.com/"
     }
 }
 
@@ -264,6 +190,12 @@ AVAILABLE_RAGS = {
 }
 
 AVAILABLE_WEBSEARCH = {
+    "nanogpt": {
+        "key": "nanogpt",
+        "title": _("NanoGPT Web Search"),
+        "description": _("NanoGPT Web Search - Standard and Deep search options"),
+        "class": NanoGPTWebSearchHandler,
+    },
     "searxng": {
         "key": "searxng",
         "title": _("SearXNG"),

@@ -802,7 +802,7 @@ class MainWindow(Adw.ApplicationWindow):
         """Update the label in the popup"""
         if not hasattr(self, "model_menu_button"):
             return
-        model_name = AVAILABLE_LLMS[self.model.key]["title"]
+        model_name = "NanoGPT"
         if self.model.get_setting("model") is not None:
             model_name = model_name + " - " + self.model.get_setting("model")
         
@@ -890,7 +890,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def build_model_selection(self):
         # Create a vertical box with some spacing & margins
-        provider_title = AVAILABLE_LLMS[self.model.key]["title"]
+        provider_title = "NanoGPT"
         if len(self.model.get_models_list()) == 0:
             return Gtk.Label(
                 label=_("This provider does not have a model list"), wrap=True
@@ -912,7 +912,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.models_list.connect("row-activated", self.on_model_row_activated)
 
         # Populate the list with downloaded models.
-        provider_title = AVAILABLE_LLMS[self.model.key]["title"]
+        provider_title = "NanoGPT"
         for name, model in self.model.get_models_list():
             # Create a ListBoxRow to hold our action row.
             listbox_row = Gtk.ListBoxRow()
@@ -2444,10 +2444,8 @@ class MainWindow(Adw.ApplicationWindow):
             self.chat_scroll_window.remove(self.offers_entry_block)
             self.chat_scroll_window.append(self.chat_controls_entry_block)
             self.chat_scroll_window.append(self.offers_entry_block)
-            if not self.controller.newelle_settings.virtualization:
-                self.add_message("WarningNoVirtual")
-            else:
-                self.add_message("Disclaimer")
+            # Always show disclaimer instead of the neural network warning
+            self.add_message("Disclaimer")
             for i in range(len(self.chat)):
                 if self.chat[i]["User"] == "User":
                     self.show_message(

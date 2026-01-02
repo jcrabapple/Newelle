@@ -50,49 +50,36 @@ class Settings(Adw.PreferencesWindow):
         self.MemoryPage = Adw.PreferencesPage(icon_name="vcard-symbolic", title=_("Knowledge"))
         # Dictionary containing all the rows for settings update
         self.settingsrows = {}
-        # Build the LLMs settings
-        self.LLM = Adw.PreferencesGroup(title=_('Language Model'))
-        # Add Help Button 
-        help = Gtk.Button(css_classes=["flat"], icon_name="info-outline-symbolic")
-        help.connect("clicked", lambda button : Popen(get_spawn_command() + ["xdg-open", "https://github.com/qwersyk/Newelle/wiki/User-guide-to-the-available-LLMs"]))
-        self.LLM.set_header_suffix(help)
-        # Add LLMs
+        # NanoGPT is now the only LLM - no selection needed
+        # Set NanoGPT as the default LLM if not already set
+        current_llm = self.settings.get_string("language-model")
+        if current_llm not in AVAILABLE_LLMS:
+            self.settings.set_string("language-model", "nanogpt")
+            self.settings.set_string("secondary-language-model", "nanogpt")
+        
+        # NanoGPT Settings - directly show configuration instead of selection
+        self.LLM = Adw.PreferencesGroup(title=_('NanoGPT API Settings'))
         self.LLMPage.add(self.LLM)
-        group = Gtk.CheckButton()
-        selected = self.settings.get_string("language-model")
-        others_row = Adw.ExpanderRow(title=_('Other LLMs'), subtitle=_("Other available LLM providers"))
-        for model_key in AVAILABLE_LLMS:
-           row = self.build_row(AVAILABLE_LLMS, model_key, selected, group)
-           if "secondary" in AVAILABLE_LLMS[model_key] and AVAILABLE_LLMS[model_key]["secondary"]:
-               others_row.add_row(row)
-           else:
-                self.LLM.add(row)
-        self.LLM.add(others_row)
-
-        # Secondary LLM
-        self.SECONDARY_LLM = Adw.PreferencesGroup(title=_('Advanced LLM Settings'))
-        # Create row
-        secondary_LLM_enabled = Gtk.Switch(valign=Gtk.Align.CENTER)
-        self.settings.bind("secondary-llm-on", secondary_LLM_enabled, 'active', Gio.SettingsBindFlags.DEFAULT)
-        secondary_LLM = Adw.ExpanderRow(title=_('Secondary Language Model'), subtitle=_("Model used for secondary tasks, like offer, chat name and memory generation"))
-        secondary_LLM.add_action(secondary_LLM_enabled)
-        # Add LLMs
-        self.MemoryPage.add(self.SECONDARY_LLM)
-        group = Gtk.CheckButton()
-        selected = self.settings.get_string("secondary-language-model")
-        others_row = Adw.ExpanderRow(title=_('Other LLMs'), subtitle=_("Other available LLM providers"))
-        for model_key in AVAILABLE_LLMS:
-           row = self.build_row(AVAILABLE_LLMS, model_key, selected, group, True)
-           if "secondary" in AVAILABLE_LLMS[model_key] and AVAILABLE_LLMS[model_key]["secondary"]:
-               others_row.add_row(row)
-           else:
-               secondary_LLM.add_row(row)
-        secondary_LLM.add_row(others_row)
-        self.SECONDARY_LLM.add(secondary_LLM)
+        
+        # Add Help Button for NanoGPT documentation
+        help = Gtk.Button(css_classes=["flat"], icon_name="info-outline-symbolic")
+        help.connect("clicked", lambda button : Popen(get_spawn_command() + ["xdg-open", "https://docs.nano-gpt.com/"]))
+        self.LLM.set_header_suffix(help)
+        
+        # Add NanoGPT configuration directly
+        nanogpt_row = Adw.ExpanderRow(title=_('NanoGPT Configuration'), subtitle=_("Configure NanoGPT API settings"))
+        self.LLM.add(nanogpt_row)
+        
+        # Add the NanoGPT handler settings directly
+        nanogpt_handler = AVAILABLE_LLMS["nanogpt"]["class"](self.settings, self.path)
+        for setting in nanogpt_handler.get_extra_settings():
+            row = self.build_extra_setting_row(setting, nanogpt_handler)
+            if row:
+                nanogpt_row.add_row(row)
         
         # Build the Embedding settings
         embedding_row = Adw.ExpanderRow(title=_('Embedding Model'), subtitle=_("Embedding is used to trasform text into vectors. Used by Long Term Memory and RAG. Changing it might require you to re-index documents or reset memory."))
-        self.SECONDARY_LLM.add(embedding_row)
+        self.MemoryPage.add(embedding_row)
         group = Gtk.CheckButton()
         selected = self.settings.get_string("embedding-model")
         for key in AVAILABLE_EMBEDDINGS:
